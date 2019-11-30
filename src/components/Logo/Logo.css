@@ -1,0 +1,19 @@
+.Tilt {
+    width: 120px;
+    height: 120px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background: linear-gradient(90deg, #FF5EDF 0%, #04C8DE 100%)
+}
+
+.Tilt-inner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+img {
+    height: 90px;
+    width: 90px;
+    margin: 0 auto !important;
+    padding-top: 15px
+}
