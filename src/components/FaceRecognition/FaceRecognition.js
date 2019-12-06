@@ -1,96 +1,58 @@
 import React from 'react';
+import './FaceRecognition.css'
 
-const NameValues = ({num, name, value}) => {
-    return (
-        <p style={{color: 'white'}}>
-            {num}.{name}: {value}
-        </p>
-    )
-}
+// const NameValues = ({num, name, value}) => {
+//     return (
+//         <p style={{color: 'white'}}>
+//             {num}.{name}: {value}
+//         </p>
+//     )
+// }
 
-class Facebox extends React.Component {
-    componentDidMount() {
-        const canvas = this.refs.canvas;
-        const ctx = canvas.getContext("2d");
-        const img = this.refs.image;
+// class Facebox extends React.Component {
 
-        this.props.box === [] ? 
-        ctx.fillRect(0,0, 100, 100)
-        : 
-        img.onload = () => {
-            let dx = (this.props.box.left_col)*img.width;
-            let dy = (this.props.box.top_row)*img.height;
-            let dWidth = ((this.props.box.right_col)*img.width)-dx;
-            let dHeight = ((this.props.box.bottom_row)*img.height)-dy;
-            console.log(img.width, img.height)
-            console.log(this.props.box.left_col)
-            ctx.drawImage(img, dx, dy, dWidth, dHeight)
-        };
+//     componentDidMount() {
+//         console.log(this.props.box)
+//         const canvas = this.refs.canvas;
+//         const ctx = canvas.getContext("2d");
+//         const img = this.refs.image;
 
-        // let dx = (this.props.box.left_col)*img.width;
-        // let dy = (this.props.box.top_row)*img.height;
-        // let dWidth = ((this.props.box.right_col)*img.width)-dx;
-        // let dHeight = ((this.props.box.bottom_row)*img.height)-dy;
+//         ctx.fillRect(0,0, 100, 100)
+//     }
 
-    //     img.onload = () => {
-    //         // ctx.drawImage(img, dx , dy, dWidth, dHeight)
-    //         ctx.drawImage(img,0,0)
-    //   }
-    }
+//     componentDidUpdate() {
+//         console.log(this.props.box)
+//         const canvas = this.refs.canvas;
+//         const ctx = canvas.getContext("2d");
+//         const img = this.refs.image;
 
-    componentDidUpdate() {
-        const canvas = this.refs.canvas;
-        const ctx = canvas.getContext("2d");
-        const img = this.refs.image;
-        
-        console.log(this.props.box)
+//         img.onload = () => {
+//             let dx = (this.props.box.left_col)*img.width;
+//             let dy = (this.props.box.top_row)*img.height;
+//             let dWidth = ((this.props.box.right_col)*img.width)-dx;
+//             let dHeight = ((this.props.box.bottom_row)*img.height)-dy;
+//             ctx.drawImage(img, dx, dy, dWidth, dHeight, 0, 0, dWidth, dHeight)
+//             img.style = {width: "400px"}
+//         };
+//     }
 
-        this.props.box === [] ? console.log(true) : console.log(false)
-
-        this.props.box === [] ? 
-        ctx.fillRect(0,0, 100, 100)
-        : 
-        img.onload = () => {
-            ctx.drawImage(
-                img,
-                (this.props.box.left_col)*img.width,
-                (this.props.box.top_row)*img.height,
-                ((this.props.box.right_col)*img.width)-((this.props.box.left_col)*img.width),
-                ((this.props.box.bottom_row)*img.height)-((this.props.box.top_row)*img.height)
-
-            )
-        };
-    }
-
-    render() {
-      return(
-        <div>
-          <canvas ref="canvas" width={640} height={425} />
-          <img ref="image" src={this.props.boxImage} style={{display: "hidden"}} />
-        </div>
-      )
-    }
-}
+//     render() {
+//       return(
+//         <div>
+//           <canvas ref="canvas" width={640} height={425} />
+//           <img ref="image" src={this.props.boxImage} style={{display: 'none'}} className="hidden" />
+//         </div>
+//       )
+//     }
+// }
 
 const FaceRecognition = ({image, response, box}) => {
     return (
-        <div>
-            <img className="image" alt="#" src={image} style={{width: "40%", height: "auto"}}/>
-                {/* {
-                    response.map((user, i) => {
-                        return(
-                            <div>
-                            <NameValues
-                            num={i}
-                            name={response[i].name}
-                            value={response[i].value}
-                            />
-                            
-                            </div>
-                        );
-                    })
-                } */}
-                <Facebox boxImage={image} box={box}/>
+        <div className="container">
+            <div className="position-absolute">
+                <img id="inputImage" alt="" src={image} style={{width: "500px", height: "auto"}}/>
+                <div className="bounding-box" style={{left: box.left_col,  top: box.top_row, right: box.right_col, bottom: box.bottom_row}}></div>
+            </div>
         </div>
     )
 }

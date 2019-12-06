@@ -61,43 +61,52 @@ class App extends React.Component {
       input: '',
       imageURL:'',
       response: [],
-      facebox: []
+      facebox: {}
     }
   }
 
-onInputChange = (event) => {
-  this.setState({input: event.target.value});
-}
+  defineFace = (data) => {
+    let boundries = data['outputs'][0]['data']['regions'][0]['region_info']['bounding_box']
+    console.log(boundries)
+    const image = document.getElementById('inputImage')
+    const width = Number(image.width)
+    const height = Number(image.height)
+    console.log(width, height)
+    return {
+      left_col: boundries.left_col * width,
+      top_row: boundries.top_row * height,
+      right_col: width - (boundries.right_col * width),
+      bottom_row: height - (boundries.bottom_row * height),
+    }
+  }
 
-searchImage = () => {
+  setBox = (facebox) => {
+    this.setState({facebox: facebox})
+  }
+
+  
+
+  onInputChange = (event) => {
+    this.setState({input: event.target.value});
+  }
+
+  searchImage = () => {
     this.setState({imageURL: this.state.input})
-    console.log(this.state.imageURL)
-    //GENERAL_MODEL
-    // app.models.initModel({id: Clarifai.GENERAL_MODEL, version: "aa7f35c01e0642fda5cf400f543e7c40"})
-    //   .then(generalModel => {
-    //     return generalModel.predict(this.state.imageURL);
-    //   })
-    //   .then(response => {
-    //     var concepts = response['outputs'][0]['data']['concepts']
-    //     console.log(concepts)
-    //     this.setState({response: concepts})
-    //   })
-    
+      
     //FACE_DETECT
-    app.models.predict("a403429f2ddf4b49b307e318f00e528b", "https://samples.clarifai.com/face-det.jpg").then(
-      function(response) {
-        var concepts = response['outputs'][0]['data']['regions'][0]['region_info']['bounding_box']
-        console.log(concepts)
-        this.setState({facebox: response['outputs'][0]['data']['regions'][0]['region_info']['bounding_box']})
-      },
-      function(err) {
-        // there was an error
-      }
+    app.models.predict(
+        "a403429f2ddf4b49b307e318f00e528b", 
+        this.state.input
+      )
+      .then(
+      response => {
+        this.setBox(this.defineFace(response))
+      })
+      .catch((err) => {console.log(err)}
     );
-}
+  }
 
   render() {
-
     return (
       <div className="App">
         <Particles className="particles"
@@ -107,10 +116,9 @@ searchImage = () => {
         <Logo/>
         <Rank/>
         <ImageLinkForm imgChange={this.onInputChange} imgSelect={this.searchImage}/>
-        <FaceRecognition image={this.state.imageURL} response={this.state.response} box={this.state.facebox}/>
+        <FaceRecognition image={this.state.imageURL} box={this.state.facebox} response={this.state.response}/>
       </div>
     );
-
   }
 }
 
