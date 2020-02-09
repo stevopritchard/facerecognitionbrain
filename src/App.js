@@ -1,16 +1,18 @@
 import React from 'react';
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
+// import Clarifai from 'clarifai'; //we've moved API call to back
 import Navigation from './components/Navigation/Navigation';
 import Logo from './components/Logo/Logo';
 import Rank from './components/Rank/Rank';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
+import Signin from './components/Signin/Signin'
+import Register from './components/Register/Register'
 import './App.css';
 
-const app = new Clarifai.App({
-  apiKey: '52a4674bbeeb43b8a331bf43162d9d99'
- });
+// const app = new Clarifai.App({
+//   apiKey: 'c5fa362e9f6e4bb5810c7371dd13a128'
+//  });
 
 const particleStyles = {
   particles: {
@@ -53,16 +55,52 @@ const particleStyles = {
   }
 }
 
+const initialState = {
+  input: '',
+  imageURL:'',
+  response: [],
+  facebox: {},
+  signedIn: false,
+  //this is the active user profile
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joined: ''
+  }
+}
 
 class App extends React.Component {
   constructor() {
     super();
-    this.state = {
-      input: '',
-      imageURL:'',
-      response: [],
-      facebox: {}
-    }
+    this.state = 
+      {initialState,
+        route: 'signin'
+      };
+  }
+
+  //this sets up the user profile, 
+  //which is return from the database 
+  //upon successful registration
+  loadUser = (data) => { 
+    this.setState({
+      user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        entries: data.entries,
+        joined: data.joined
+      }
+    });
+    console.log(this.state.user)
+  }
+
+  componentDidMount() {
+    //fetching the user list from the server (running on port 5000)
+    fetch('http://localhost:5000/')
+    .then(response => response.json())
+    .then(console.log)
   }
 
   defineFace = (data) => {
@@ -80,12 +118,20 @@ class App extends React.Component {
     }
   }
 
+  onRouteChange = ( route ) => {
+    
+    this.setState({route: route})
+    if(route === 'signin' || route === 'register') {
+      this.setState(initialState)
+    } else if(route === 'home'){
+      this.setState({signedIn: true})
+    }
+  }
+
   setBox = (facebox) => {
     this.setState({facebox: facebox})
   }
-
   
-
   onInputChange = (event) => {
     this.setState({input: event.target.value});
   }
@@ -93,30 +139,91 @@ class App extends React.Component {
   searchImage = () => {
     this.setState({imageURL: this.state.input})
       
-    //FACE_DETECT
-    app.models.predict(
-        "a403429f2ddf4b49b307e318f00e528b", 
-        this.state.input
-      )
-      .then(
-      response => {
-        this.setBox(this.defineFace(response))
+    //FACE_DETECT --> NOW MOVED TO BACK-END TO 
+    // app.models.predict(
+    //     "a403429f2ddf4b49b307e318f00e528b", 
+    //     this.state.input
+    //   )
+    fetch('http://localhost:5000/imageURL', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+          //we already have the 'id' of the user
+          //when they sign in
+          input: this.state.input
       })
-      .catch((err) => {console.log(err)}
-    );
+    })
+    .then(response => response.json())
+    .then(
+    response => {
+      if (response) {
+        fetch('http://localhost:5000/image', {
+          method: 'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+              //we already have the 'id' of the user
+              //when they sign in
+              id: this.state.user.id
+          })
+        })
+        // .then(this.setState(prevState => { //to update the 'entries' property of user, this creates a copy of the entries object and update it
+        //     let user = Object.assign({}, prevState.user);
+        //     user.entries = user.entries+1;
+        //     return { user };
+        //   })
+        // )
+        .then(response => response.json())
+        .then(response=> {
+          this.setState(prevState => ({
+            user: {
+              ...prevState.user,
+              entries: response
+            }
+          }))
+          console.log(response)
+        })
+        .catch(err => console.log(err))
+      }
+      this.setBox(this.defineFace(response))
+      })
+    .catch((err) => {console.log(err)});
   }
 
   render() {
+    const { signedIn, route, facebox, imageURL } = this.state;
     return (
       <div className="App">
         <Particles className="particles"
           params={particleStyles}
         />
-        <Navigation />
-        <Logo/>
-        <Rank/>
-        <ImageLinkForm imgChange={this.onInputChange} imgSelect={this.searchImage}/>
-        <FaceRecognition image={this.state.imageURL} box={this.state.facebox} response={this.state.response}/>
+        <Navigation routeChange = {this.onRouteChange} isSignedIn = {signedIn}/>
+        {route === 'home' 
+          ? <div>
+              <Logo/> 
+              <Rank 
+                name={this.state.user.name} 
+                entries={this.state.user.entries}
+              />
+              <ImageLinkForm 
+                imgChange = {this.onInputChange} 
+                imgSelect = {this.searchImage}
+              />
+              <FaceRecognition 
+                image = {imageURL} 
+                box = {facebox}
+              />
+            </div>
+          : (route === 'signin'
+            ? <Signin 
+                routeChange = {this.onRouteChange} 
+                loadUser={this.loadUser}
+              />
+            : <Register 
+                routeChange = {this.onRouteChange} 
+                loadUser={this.loadUser}
+              />
+            )
+        }
       </div>
     );
   }

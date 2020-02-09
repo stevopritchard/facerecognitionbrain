@@ -46,12 +46,20 @@ import './FaceRecognition.css'
 //     }
 // }
 
-const FaceRecognition = ({image, response, box}) => {
+function throwBox(boxprop) {
+    if(!boxprop){
+        return {left: '',  top: '', right: '', bottom: ''}
+    } else {
+        return {left: boxprop.left_col,  top: boxprop.top_row, right: boxprop.right_col, bottom: boxprop.bottom_row}
+    }
+}
+
+const FaceRecognition = ({image, box}) => {
     return (
         <div className="container">
             <div className="position-absolute">
                 <img id="inputImage" alt="" src={image} style={{width: "500px", height: "auto"}}/>
-                <div className="bounding-box" style={{left: box.left_col,  top: box.top_row, right: box.right_col, bottom: box.bottom_row}}></div>
+                <div className="bounding-box" style={throwBox(box)}></div>
             </div>
         </div>
     )

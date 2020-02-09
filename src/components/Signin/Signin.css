@@ -1,0 +1,4 @@
+.text-muted:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
