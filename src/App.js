@@ -98,7 +98,7 @@ class App extends React.Component {
 
   componentDidMount() {
     //fetching the user list from the server (running on port 5000)
-    fetch('http://localhost:5000/')
+    fetch('https://ancient-mountain-30991.herokuapp.com/')
     .then(response => response.json())
     .then(console.log)
   }
