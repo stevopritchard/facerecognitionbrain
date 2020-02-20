@@ -29,7 +29,7 @@ class Register extends React.Component {
         if ( this.state.registerName === '' || this.state.registerEmail === ''|| this.state.registerPassword === '') {
             this.setState({responseText: "Please fill in all fields."})
         } else {
-            fetch('http://localhost:5000/register', {
+            fetch('https://ancient-mountain-30991.herokuapp.com/register', {
                 method: 'post',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({

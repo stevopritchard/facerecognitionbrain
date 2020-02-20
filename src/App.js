@@ -144,7 +144,7 @@ class App extends React.Component {
     //     "a403429f2ddf4b49b307e318f00e528b", 
     //     this.state.input
     //   )
-    fetch('http://localhost:5000/imageURL', {
+    fetch('https://ancient-mountain-30991.herokuapp.com/imageURL', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -157,7 +157,7 @@ class App extends React.Component {
     .then(
     response => {
       if (response) {
-        fetch('http://localhost:5000/image', {
+        fetch('https://ancient-mountain-30991.herokuapp.com:5000/image', {
           method: 'put',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
